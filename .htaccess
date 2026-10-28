@@ -1,0 +1,59 @@
+# ============================================================
+#  freshmilkfarm.com — Nosto Alchemist
+#  Works on Apache shared hosting (Bluehost / cPanel style).
+# ============================================================
+
+# ---------- default page ----------
+DirectoryIndex index.html
+
+# ugly "Index of /" listing off
+Options -Indexes
+
+# ---------- https + no www ----------
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  # force HTTPS
+  RewriteCond %{HTTPS} !=on
+  RewriteCond %{HTTP:X-Forwarded-Proto} !https
+  RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+  # force the bare domain (freshmilkfarm.com)
+  RewriteCond %{HTTP_HOST} ^www\.(.+)$ [NC]
+  RewriteRule ^ https://%1%{REQUEST_URI} [L,R=301]
+  # friendly aliases
+  RewriteRule ^play/?$        play.html  [L]
+  RewriteRule ^game/?$        play.html  [L]
+  RewriteRule ^3d/?$          play.html  [L]
+  RewriteRule ^brawl/?$       play.html  [L]
+  RewriteRule ^apothecary/?$  story.html [L]
+  RewriteRule ^shop/?$        story.html [L]
+  RewriteRule ^story/?$       story.html [L]
+</IfModule>
+
+# ---------- custom error page ----------
+ErrorDocument 404 /404.html
+
+# ---------- compression ----------
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/css application/javascript image/svg+xml text/plain
+</IfModule>
+
+# ---------- caching ----------
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresByType image/png  "access plus 1 month"
+  ExpiresByType image/svg+xml "access plus 1 month"
+  ExpiresByType text/css   "access plus 7 days"
+  ExpiresByType application/javascript "access plus 7 days"
+  ExpiresByType text/html  "access plus 0 seconds"
+</IfModule>
+
+# ---------- correct types ----------
+AddType application/javascript .js
+AddType image/svg+xml .svg
+
+# ---------- a little security polish ----------
+<IfModule mod_headers.c>
+  Header set X-Content-Type-Options "nosniff"
+  Header set Referrer-Policy "strict-origin-when-cross-origin"
+  Header set Permissions-Policy "geolocation=(), microphone=(), camera=()"
+</IfModule>
